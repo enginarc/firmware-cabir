@@ -19,9 +19,6 @@ static const char *TAG = "BLE";
 static const char *DEVICE_NAME = "Cabir";
 static uint16_t   s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 
-/* Forward declaration */
-static int gap_event_cb(struct ble_gap_event *event, void *arg);
-
 /* Notify characteristic handles */
 static uint16_t h_plate_temp;
 static uint16_t h_liquid_temp;
@@ -311,6 +308,9 @@ static const struct ble_gatt_svc_def s_gatt_svcs[] = {
   },
   { 0 } /* sentinel */
 };
+
+/* ── Forward declaration ─────────────────────────────────── */
+static int gap_event_cb(struct ble_gap_event *event, void *arg);
 
 /* ── Advertising ─────────────────────────────────────────── */
 
