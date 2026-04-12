@@ -1,0 +1,23 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "config.h"
+        "temperature.c"
+        "pid.c"
+        "tpc.c"
+        "safety.c"
+        "session.c"
+        "ble_server.c"
+        "display.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        nvs_flash
+        bt
+        esp_event
+        driver
+        esp_adc
+        esp_timer
+        freertos
+        log
+        spi_flash
+)
