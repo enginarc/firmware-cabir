@@ -1,0 +1,4 @@
+Three things to do after first flash
+PID tuning — the constants in config.h (PID_KP=2.5, PID_KI=0.08, PID_KD=0.5) are starting estimates. With your 1kg aluminium plate, expect overshoot on the first run. Watch the serial monitor, and if you see oscillation reduce KP; if response is sluggish increase it.
+NTC wiring confirmation — the voltage divider assumes 3.3V → 10K fixed → ADC pin → 10K NTC → GND. If your NTC is on the high side instead, the temperature will read inverted. The raw_to_celsius_x10 function in temperature.c will need the r_ntc formula flipped.
+GPIO pin verification — the assignments in config.h are based on our schematic. Before flashing, cross-check them against the physical ESP32-S3 Super Mini pinout diagram for your specific board revision, as Super Mini variants occasionally differ.

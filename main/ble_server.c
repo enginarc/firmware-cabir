@@ -317,24 +317,39 @@ static int gap_event_cb(struct ble_gap_event *event, void *arg);
 static void start_advertising(void)
 {
     struct ble_hs_adv_fields fields = {0};
-    fields.flags            = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+
+    /* Flags */
+    fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+
+    /* Device name */
     fields.name             = (const uint8_t *)DEVICE_NAME;
     fields.name_len         = strlen(DEVICE_NAME);
     fields.name_is_complete = 1;
 
-    ble_gap_adv_set_fields(&fields);
+    /* ── ADD THIS BLOCK ── */
+    static const ble_uuid16_t svc_uuid = BLE_UUID16_INIT(CABIR_SVC_UUID);
+    fields.uuids16             = &svc_uuid;
+    fields.num_uuids16         = 1;
+    fields.uuids16_is_complete = 1;
+    /* ────────────────────── */
+
+    int rc = ble_gap_adv_set_fields(&fields);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "ble_gap_adv_set_fields failed: %d", rc);
+        return;
+    }
 
     struct ble_gap_adv_params params = {0};
     params.conn_mode = BLE_GAP_CONN_MODE_UND;
     params.disc_mode = BLE_GAP_DISC_MODE_GEN;
 
-    int rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, BLE_HS_FOREVER,
-                               &params, gap_event_cb, NULL);
+    rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, BLE_HS_FOREVER,
+                           &params, gap_event_cb, NULL);
     if (rc != 0) {
-        ESP_LOGE(TAG, "adv_start failed: %d", rc);
-    } else {
-        ESP_LOGI(TAG, "Advertising as \"%s\"", DEVICE_NAME);
+        ESP_LOGE(TAG, "ble_gap_adv_start failed: %d", rc);
+        return;
     }
+    ESP_LOGI(TAG, "Advertising as \"%s\" with service 0x%04X", DEVICE_NAME, CABIR_SVC_UUID);
 }
 
 /* ── GAP event handler ───────────────────────────────────── */
