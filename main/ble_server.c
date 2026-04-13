@@ -16,7 +16,7 @@
 
 static const char *TAG = "BLE";
 
-static const char *DEVICE_NAME = "Cabir";
+static char s_device_name[16];   /* "Cabir-XXXX\0" */
 static uint16_t   s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 
 /* Notify characteristic handles */
@@ -322,8 +322,8 @@ static void start_advertising(void)
     fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
 
     /* Device name */
-    fields.name             = (const uint8_t *)DEVICE_NAME;
-    fields.name_len         = strlen(DEVICE_NAME);
+    fields.name     = (const uint8_t *)s_device_name;
+    fields.name_len = strlen(s_device_name);
     fields.name_is_complete = 1;
 
     /* ── ADD THIS BLOCK ── */
@@ -349,7 +349,7 @@ static void start_advertising(void)
         ESP_LOGE(TAG, "ble_gap_adv_start failed: %d", rc);
         return;
     }
-    ESP_LOGI(TAG, "Advertising as \"%s\" with service 0x%04X", DEVICE_NAME, CABIR_SVC_UUID);
+    ESP_LOGI(TAG, "Advertising as \"%s\" with service 0x%04X", s_device_name, CABIR_SVC_UUID);
 }
 
 /* ── GAP event handler ───────────────────────────────────── */
@@ -385,11 +385,31 @@ static int gap_event_cb(struct ble_gap_event *event, void *arg)
     return 0;
 }
 
+static void build_device_name(void)
+{
+    uint8_t addr[6] = {0};
+    int rc = ble_hs_id_copy_addr(BLE_ADDR_PUBLIC, addr, NULL);
+    if (rc != 0) {
+        /* Fallback if public address unavailable */
+        ble_hs_id_copy_addr(BLE_ADDR_RANDOM, addr, NULL);
+    }
+    /*
+     * Use the last two bytes of the MAC address as a 4-character
+     * uppercase hex suffix — unique per device, stable across reboots.
+     * addr[0] is the LSB of the MAC in NimBLE's byte order.
+     */
+    snprintf(s_device_name, sizeof(s_device_name),
+             "Cabir-%02X%02X", addr[1], addr[0]);
+    ESP_LOGI("BLE", "Device name: %s", s_device_name);
+}
+
 /* ── NimBLE host callbacks ───────────────────────────────── */
 
 static void ble_on_sync(void)
 {
     ble_hs_util_ensure_addr(0);
+    build_device_name();                          /* ← add this line */
+    ble_svc_gap_device_name_set(s_device_name);   /* ← add this line */
     start_advertising();
 }
 
@@ -480,7 +500,6 @@ esp_err_t ble_server_init(void)
         return ESP_FAIL;
     }
 
-    ble_svc_gap_device_name_set(DEVICE_NAME);
     nimble_port_freertos_init(nimble_host_task);
 
     xTaskCreate(notify_task, "ble_notify", 4096, NULL, 5, NULL);
