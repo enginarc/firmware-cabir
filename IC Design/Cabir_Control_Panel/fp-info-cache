@@ -1,4 +1,4 @@
-27220115864950397
+27221892035020754
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -100738,6 +100738,13 @@ ESP32-S3_Super_Mini_THTONLY_(B.Cu)
 18
 TMB_Library
 HLK-5M12_PCB_AC-DC_Adapter
+
+
+0
+4
+4
+TMB_Library
+HLK-10M05_PCB_AC-DC_Adapter
 
 
 0

@@ -235,7 +235,7 @@
 		(layer "F.Cu")
 		(uuid "2017dbe5-e8f4-46cc-9ea7-e065bc102417")
 		(at 75.25 70.15)
-		(property "Reference" "AC-DC1"
+		(property "Reference" "PS1"
 			(at -12.95 5.5 90)
 			(unlocked yes)
 			(layer "F.SilkS")
